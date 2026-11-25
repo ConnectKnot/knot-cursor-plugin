@@ -1,0 +1,39 @@
+---
+description: Enforce Knot Turn-0 context recovery, v1 -> v2 supersession via propose_context, cross-AI handoffs, and secret or PCI refusal across every Cursor session.
+alwaysApply: true
+---
+
+# Knot Context Governance Rules
+
+Follow these rules whenever the `Knot` MCP server (`https://api.connectknot.com/mcp` or a self-hosted `Knot EnterpriseBrain` VPC endpoint) is connected.
+
+## 1. Turn-0 Context Recovery
+
+Before editing architecture, writing specs, or implementing changes on an ongoing project:
+
+1. Check scope and authentication if unknown by calling `get_knot_connection_status` and `knot_list_scopes`.
+2. Check incoming work delegated from ChatGPT, Claude, Gemini, or Kiro by calling `check_pending_handoffs`.
+3. Recover active project truth with `get_context_recovery` (for cold starts or post-compaction sessions) and `get_relevant_context`.
+4. Pass `query_mode: "trajectory"` to `get_relevant_context` for security, compliance, billing, schema, or retry policies so `v1 -> v2` overrides are explicit.
+5. Never re-introduce a superseded `v1` assumption when an active `v2` decision or constraint overrides it. If Knot surfaces unresolved `potential_conflicts`, present both claims to the user and ask which stands before writing code.
+
+## 2. Temporal `v1 -> v2` Supersession
+
+When verified engineering decisions, constraints, or project states change in Cursor:
+
+1. Read existing active items first with `get_relevant_context` so you have the exact prior item UUID.
+2. Call `propose_context` (or `batch_propose_context` for 2 to 5 atomic updates) with `entity_hint`, `kind` (`decision`, `constraint`, `fact`, `goal`, or `project_state`), `subject_key`, `rationale`, `confidence`, and a deterministic `idempotency_key`.
+3. When replacing an outdated claim (`v1 -> v2`), always pass `supersedes_context_id` pointing to the prior item ID so Knot closes `v1` and promotes `v2`.
+4. If Knot returns `needs_clarification`, inspect `related` items and re-submit with `supersedes_context_id` or `coexists_with_context_ids`.
+5. Only commit `project_state` as verified after running tests or builds following your final edit. Ask the user before overwriting shared team decisions or confirming `confirm_shared: true`.
+
+## 3. Cross-AI Task Handoffs
+
+1. When picking up a pending handoff from `check_pending_handoffs`, update it with `update_handoff_status` (`status: "accepted"`, then `"working"`, then `"completed"` with a concise `resolution_summary`).
+2. When handing follow-up work back to ChatGPT, Claude, Gemini, or teammates (such as release notes, security review, or stakeholder sign-off), call `create_handoff` with `destination_client_id`, relevant `context_refs`, and a scoped `task`.
+
+## 4. Secret, Credential, and PCI Refusal Rules
+
+1. Strictly refuse to store, log, or propose raw API keys, bearer tokens, passwords, private keys, session cookies, or raw payment cardholder data (PAN, CVV, or magnetic stripe track data) in Knot context items, `.mdc` rules, or `.mcp.json`.
+2. Strip or redact sensitive tokens and PII before calling `propose_context` or `batch_propose_context`.
+3. Respect Knot write-door rejections (`HTTP 422 PCI_CDE_PAYLOAD_REJECTED` for cardholder data and high-entropy secret checks at `H >= 3.55 bits/char`); never try to bypass or encode restricted payloads to get around write-door validation.

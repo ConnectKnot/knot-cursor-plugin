@@ -1,0 +1,37 @@
+{
+  "name": "knot",
+  "displayName": "Knot",
+  "version": "1.0.0",
+  "description": "Governed shared context, Turn-0 recovery, v1 -> v2 supersession, and cross-AI handoffs in Cursor over MCP.",
+  "author": {
+    "name": "ConnectKnot",
+    "email": "support@connectknot.com"
+  },
+  "publisher": "ConnectKnot",
+  "homepage": "https://connectknot.com/quickstart",
+  "repository": "https://github.com/ConnectKnot/knot-cursor-plugin",
+  "license": "MIT",
+  "keywords": [
+    "knot",
+    "cursor",
+    "cursor-plugin",
+    "cursor-rules",
+    "mcp",
+    "context-governance",
+    "supersession",
+    "handoffs",
+    "enterprise-brain"
+  ],
+  "category": "developer-tools",
+  "tags": [
+    "mcp",
+    "context-governance",
+    "memory",
+    "rules",
+    "enterprise"
+  ],
+  "rules": "./rules/",
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json"
+}
